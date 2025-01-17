@@ -58,7 +58,7 @@ async def user_post(new_user: User):
     """Create User"""
     if existing_user := search_user(new_user.id):
         raise HTTPException(status_code=204, detail=f"El usuario ya existe: {existing_user}")
-    users_list.routerend(new_user)
+    users_list.append(new_user)
     return {"message": "Usuario creado exitosamente"}
 
 
