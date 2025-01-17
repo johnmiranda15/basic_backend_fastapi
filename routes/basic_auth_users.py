@@ -1,7 +1,7 @@
 """Users API con autorización OAuth2 básica """
 
+from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, status # type: ignore
-from pydantic import BaseModel # type: ignore
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm # type: ignore
 
 router = APIRouter(prefix="/basicauth",
@@ -12,6 +12,7 @@ oauth2 = OAuth2PasswordBearer(tokenUrl="/basicauth/login")
 
 
 class User(BaseModel):
+    """Modelo de usuario"""
     username: str
     full_name: str
     email: str
@@ -19,6 +20,7 @@ class User(BaseModel):
 
 
 class UserDB(User):
+    """Modelo de usuario en base de datos"""
     password: str
 
 
@@ -41,16 +43,19 @@ users_db = {
 
 
 def search_user_db(username: str):
+    """Buscar usuario en base de datos"""
     if username in users_db:
         return UserDB(**users_db[username])
 
 
 def search_user(username: str):
+    """Buscar usuario en base de datos"""
     if username in users_db:
         return User(**users_db[username])
 
 
 async def current_user(token: str = Depends(oauth2)):
+    """Obtener usuario actual"""
     user = search_user(token)
     if not user:
         raise HTTPException(
@@ -68,6 +73,7 @@ async def current_user(token: str = Depends(oauth2)):
 
 @router.post("/login")
 async def login(form: OAuth2PasswordRequestForm = Depends()):
+    """Autenticación de usuario"""
     user_db = users_db.get(form.username)
     if not user_db:
         raise HTTPException(
@@ -83,4 +89,5 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
 
 @router.get("/users/me")
 async def me(user: User = Depends(current_user)):
+    """Usuario actual"""
     return user
